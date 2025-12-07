@@ -4,19 +4,9 @@ var APP_DATA = {
       "id": "0-bureau-1",
       "name": "BUREAU 1",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -25,7 +15,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/bureau-1/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/bureau-1/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -44,19 +34,9 @@ var APP_DATA = {
       "id": "1-bureau-2-balcon",
       "name": "BUREAU 2 BALCON",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -65,7 +45,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/bureau-2-balcon/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/bureau-2-balcon/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -90,19 +70,9 @@ var APP_DATA = {
       "id": "2-bureau-3",
       "name": "BUREAU 3",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -111,7 +81,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/bureau-3/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/bureau-3/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -123,19 +93,9 @@ var APP_DATA = {
       "id": "3-cuisine",
       "name": "CUISINE",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -144,7 +104,7 @@ var APP_DATA = {
         "fov": 1.4688428655418002
       },
       "image": {
-        "base": "./tiles/cuisine/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/cuisine/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -175,19 +135,9 @@ var APP_DATA = {
       "id": "4-hall-1",
       "name": "HALL 1",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -196,7 +146,7 @@ var APP_DATA = {
         "fov": 1.4688428655418002
       },
       "image": {
-        "base": "./tiles/hall-1/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/hall-1/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -239,19 +189,9 @@ var APP_DATA = {
       "id": "5-hall-2",
       "name": "HALL 2",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -260,7 +200,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/hall-2/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/hall-2/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -297,19 +237,9 @@ var APP_DATA = {
       "id": "6-salle-d-attente",
       "name": "SALLE D ATTENTE",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -318,7 +248,8 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/salle-d-attente/{z}/{f}/0/{y}/{x}.jpg",
+
+        "base": "tiles/salle-d-attente/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -349,19 +280,9 @@ var APP_DATA = {
       "id": "7-salle-reunion",
       "name": "SALLE REUNION",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -370,7 +291,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/salle-reunion/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/salle-reunion/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -395,19 +316,9 @@ var APP_DATA = {
       "id": "8-toilette-pmr",
       "name": "TOILETTE PMR",
       "levels": [
-        {
-          "tileSize": 256,
-          "size": 256,
-          "fallbackOnly": true
-        },
-        {
-          "tileSize": 512,
-          "size": 512
-        },
-        {
-          "tileSize": 512,
-          "size": 1024
-        }
+        { "tileSize": 256, "size": 256, "fallbackOnly": true },
+        { "tileSize": 512, "size": 512 },
+        { "tileSize": 512, "size": 1024 }
       ],
       "faceSize": 1024,
       "initialViewParameters": {
@@ -416,7 +327,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "./tiles/toilette-pmr/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/toilette-pmr/{z}/{f}/0/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
