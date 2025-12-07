@@ -828,3 +828,34 @@ body.view-control-buttons .viewControlButton {
 .viewControlButton-6 {
   margin-left: 105px;
 }
+/* Hotspots */
+.hotspot {
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.hotspot:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.link-hotspot:hover {
+  background-color: rgba(0, 200, 100, 0.9);
+}
+
+.info-hotspot:hover {
+  background-color: rgba(0, 100, 255, 0.9);
+}
+
+.hotspot-tooltip {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+/* Scène active */
+.scene.active {
+  background-color: rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+}
