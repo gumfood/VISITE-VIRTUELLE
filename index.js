@@ -1,44 +1,88 @@
-// index.js - Version adaptée pour votre structure
+// index.js - Version avec mapping personnalisé
 document.addEventListener('DOMContentLoaded', function() {
-  // Vérifier que APP_DATA existe
   if (!window.APP_DATA) {
-    console.error('APP_DATA non trouvé. Vérifiez que data.js est chargé.');
+    console.error('APP_DATA non trouvé');
     return;
   }
 
-  // Initialiser Marzipano
-  var panoElement = document.getElementById('pano');
-  var viewerOpts = {
-    controls: {
-      mouseViewMode: APP_DATA.settings.mouseViewMode || 'drag'
+  // MAPPING PERSONNALISÉ POUR LES FACES
+  const faceMapping = {
+    'bureau-1': {
+      'f': '1',  // front -> 1
+      'r': '3',  // right -> 3  
+      'l': '5',  // left -> 5
+      // l, r, u restent identiques
     }
   };
-  
-  var viewer = new Marzipano.Viewer(panoElement, viewerOpts);
+
+  // Fonction pour obtenir le nom de dossier réel
+  function getActualFace(sceneId, face) {
+    if (faceMapping[sceneId] && faceMapping[sceneId][face]) {
+      return faceMapping[sceneId][face];
+    }
+    return face;
+  }
+
+  var panoElement = document.getElementById('pano');
+  var viewer = new Marzipano.Viewer(panoElement);
   var scenes = {};
-  var sceneList = document.querySelector('.scenes');
-  
-  // Fonction pour créer une scène
-  function createScene(sceneData) {
-    var urlPrefix = "tiles";
-    var source = Marzipano.ImageUrlSource.fromString(
-      sceneData.image.base,
-      { cubeMapPreviewUrl: urlPrefix + "/" + sceneData.id + "/preview.jpg" }
-    );
+
+  // Source d'image personnalisée
+  function createCustomImageSource(sceneData) {
+    const sceneId = sceneData.id.split('-').slice(1).join('-'); // "0-bureau-1" -> "bureau-1"
     
-    var geometry = new Marzipano.CubeGeometry(sceneData.levels);
-    var limiter = Marzipano.RectilinearView.limit.traditional(
+    return {
+      // Fonction appelée par Marzipano pour obtenir l'URL d'une tile
+      url: function(face, level, x, y) {
+        const actualFace = getActualFace(sceneId, face);
+        const basePath = sceneData.image.base
+          .replace('{z}', level)
+          .replace('{f}', actualFace)
+          .replace('{y}', y)
+          .replace('{x}', x);
+        
+        console.log('Loading tile:', basePath); // Pour le débogage
+        return basePath;
+      },
+      
+      // Métadonnées
+      tileSize: function(level) {
+        return sceneData.levels[level].tileSize;
+      },
+      
+      levelSize: function(level) {
+        return sceneData.levels[level].size;
+      },
+      
+      faceSize: sceneData.faceSize,
+      fallbackLevels: sceneData.levels.filter(l => l.fallbackOnly).map((_, i) => i)
+    };
+  }
+
+  // Créer une scène
+  function createScene(sceneData) {
+    const sceneId = sceneData.id.split('-').slice(1).join('-');
+    
+    // Source personnalisée
+    const source = new Marzipano.ImageUrlSourceFromCustom(createCustomImageSource(sceneData));
+    
+    // Géométrie
+    const geometry = new Marzipano.CubeGeometry(sceneData.levels);
+    
+    // Vue
+    const limiter = Marzipano.RectilinearView.limit.traditional(
       sceneData.faceSize,
       (100 * Math.PI) / 180,
       (120 * Math.PI) / 180
     );
     
-    var view = new Marzipano.RectilinearView(
+    const view = new Marzipano.RectilinearView(
       sceneData.initialViewParameters,
       limiter
     );
     
-    var scene = viewer.createScene({
+    // Créer la scène
+    const scene = viewer.createScene({
       source: source,
       geometry: geometry,
       view: view,
@@ -50,294 +94,172 @@ document.addEventListener('DOMContentLoaded', function() {
       scene: scene
     };
   }
-  
+
   // Créer toutes les scènes
   APP_DATA.scenes.forEach(function(sceneData) {
     scenes[sceneData.id] = createScene(sceneData);
   });
-  
-  // Gestionnaire de changement de scène
+
+  // Fonction pour basculer entre scènes
   function switchScene(sceneId) {
-    var scene = scenes[sceneId];
-    if (!scene) {
-      console.error('Scène non trouvée:', sceneId);
-      return;
-    }
-    
+    const scene = scenes[sceneId];
+    if (!scene) return;
+
     // Mettre à jour le titre
-    var sceneNameElement = document.querySelector('.sceneName');
-    if (sceneNameElement) {
-      sceneNameElement.textContent = scene.data.name;
-    }
-    
-    // Activer le lien dans la liste
-    var sceneLinks = document.querySelectorAll('.scene');
-    sceneLinks.forEach(function(link) {
-      link.classList.remove('active');
-      if (link.getAttribute('data-id') === sceneId) {
-        link.classList.add('active');
-      }
+    document.querySelector('.sceneName').textContent = scene.data.name;
+
+    // Mettre en surbrillance dans la liste
+    document.querySelectorAll('.scene').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('data-id') === sceneId);
     });
-    
-    // Changer de scène
+
+    // Basculer vers la scène
     scene.scene.switchTo();
-    
+
     // Mettre à jour les hotspots
     updateHotspots(scene.data);
   }
-  
-  // Mettre à jour les hotspots
+
+  // Gérer les hotspots
   function updateHotspots(sceneData) {
-    // Supprimer les anciens hotspots
-    var hotspotContainer = document.getElementById('hotspotContainer');
-    if (hotspotContainer) {
-      hotspotContainer.remove();
-    }
-    
-    hotspotContainer = document.createElement('div');
-    hotspotContainer.id = 'hotspotContainer';
-    hotspotContainer.style.position = 'absolute';
-    hotspotContainer.style.width = '100%';
-    hotspotContainer.style.height = '100%';
-    hotspotContainer.style.pointerEvents = 'none';
-    panoElement.appendChild(hotspotContainer);
-    
-    // Ajouter les link hotspots
-    sceneData.linkHotspots.forEach(function(hotspot) {
-      var element = document.createElement('div');
-      element.className = 'hotspot link-hotspot';
-      element.style.position = 'absolute';
-      element.style.width = '40px';
-      element.style.height = '40px';
-      element.style.background = 'rgba(255, 255, 255, 0.7)';
-      element.style.borderRadius = '50%';
-      element.style.cursor = 'pointer';
-      element.style.pointerEvents = 'auto';
-      element.style.display = 'flex';
-      element.style.alignItems = 'center';
-      element.style.justifyContent = 'center';
-      element.style.fontSize = '20px';
-      element.style.color = '#333';
-      element.textContent = '→';
-      element.title = 'Aller vers ' + (scenes[hotspot.target] ? scenes[hotspot.target].data.name : hotspot.target);
-      
-      element.addEventListener('click', function() {
-        switchScene(hotspot.target);
+    // Nettoyer les anciens hotspots
+    const oldContainer = document.getElementById('hotspot-container');
+    if (oldContainer) oldContainer.remove();
+
+    const container = document.createElement('div');
+    container.id = 'hotspot-container';
+    container.style.cssText = `
+      position: absolute; width: 100%; height: 100%; 
+      pointer-events: none; z-index: 1000;
+    `;
+    panoElement.appendChild(container);
+
+    // Hotspots de lien
+    sceneData.linkHotspots.forEach(hotspot => {
+      const el = document.createElement('div');
+      el.className = 'hotspot link-hotspot';
+      el.title = `Aller à ${scenes[hotspot.target]?.data.name || hotspot.target}`;
+      el.innerHTML = '➤';
+      el.style.cssText = `
+        position: absolute; width: 40px; height: 40px;
+        background: rgba(255,255,255,0.8); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; pointer-events: auto;
+        font-size: 20px; color: #333; transform: translate(-50%, -50%);
+        transition: all 0.2s;
+      `;
+
+      el.addEventListener('click', () => switchScene(hotspot.target));
+      el.addEventListener('mouseenter', () => {
+        el.style.background = 'rgba(0,200,100,0.9)';
+        el.style.transform = 'translate(-50%, -50%) scale(1.2)';
       });
-      
-      // Positionner le hotspot
-      var coordinates = viewer.view().coordinatesFromYawPitch(
-        hotspot.yaw,
-        hotspot.pitch
-      );
-      
-      element.style.left = (coordinates.x * 100) + '%';
-      element.style.top = (coordinates.y * 100) + '%';
-      element.style.transform = 'translate(-50%, -50%)';
-      
-      hotspotContainer.appendChild(element);
-    });
-    
-    // Ajouter les info hotspots
-    sceneData.infoHotspots.forEach(function(hotspot) {
-      var element = document.createElement('div');
-      element.className = 'hotspot info-hotspot';
-      element.style.position = 'absolute';
-      element.style.width = '30px';
-      element.style.height = '30px';
-      element.style.background = 'rgba(0, 150, 255, 0.7)';
-      element.style.borderRadius = '50%';
-      element.style.cursor = 'pointer';
-      element.style.pointerEvents = 'auto';
-      element.style.display = 'flex';
-      element.style.alignItems = 'center';
-      element.style.justifyContent = 'center';
-      element.style.fontSize = '16px';
-      element.style.color = 'white';
-      element.textContent = 'i';
-      element.title = hotspot.title || 'Information';
-      
-      // Info tooltip
-      var tooltip = document.createElement('div');
-      tooltip.className = 'hotspot-tooltip';
-      tooltip.style.display = 'none';
-      tooltip.style.position = 'absolute';
-      tooltip.style.background = 'rgba(0,0,0,0.8)';
-      tooltip.style.color = 'white';
-      tooltip.style.padding = '10px';
-      tooltip.style.borderRadius = '5px';
-      tooltip.style.maxWidth = '200px';
-      tooltip.style.zIndex = '1000';
-      tooltip.innerHTML = '<strong>' + (hotspot.title || 'Information') + '</strong><br>' + (hotspot.text || '');
-      
-      element.appendChild(tooltip);
-      
-      element.addEventListener('mouseenter', function() {
-        tooltip.style.display = 'block';
+      el.addEventListener('mouseleave', () => {
+        el.style.background = 'rgba(255,255,255,0.8)';
+        el.style.transform = 'translate(-50%, -50%) scale(1)';
       });
-      
-      element.addEventListener('mouseleave', function() {
-        tooltip.style.display = 'none';
-      });
-      
-      // Positionner le hotspot
-      var coordinates = viewer.view().coordinatesFromYawPitch(
-        hotspot.yaw,
-        hotspot.pitch
-      );
-      
-      element.style.left = (coordinates.x * 100) + '%';
-      element.style.top = (coordinates.y * 100) + '%';
-      element.style.transform = 'translate(-50%, -50%)';
-      
-      hotspotContainer.appendChild(element);
+
+      const coords = viewer.view().coordinatesFromYawPitch(hotspot.yaw, hotspot.pitch);
+      el.style.left = (coords.x * 100) + '%';
+      el.style.top = (coords.y * 100) + '%';
+
+      container.appendChild(el);
     });
   }
-  
-  // Configuration des boutons de contrôle
-  function setupControls() {
-    // Rotation automatique
-    var autorotateToggle = document.getElementById('autorotateToggle');
-    if (autorotateToggle && APP_DATA.settings.autorotateEnabled) {
-      var isAutorotateEnabled = false;
-      
-      autorotateToggle.addEventListener('click', function() {
-        isAutorotateEnabled = !isAutorotateEnabled;
-        viewer.setIdleMovement(3000, isAutorotateEnabled);
-        
-        var icons = this.querySelectorAll('.icon');
-        icons.forEach(function(icon) {
-          icon.style.display = 'none';
-        });
-        
-        if (isAutorotateEnabled) {
-          this.querySelector('.on').style.display = 'block';
-        } else {
-          this.querySelector('.off').style.display = 'block';
-        }
-      });
-      
-      // Démarrer automatiquement si configuré
-      if (APP_DATA.settings.autorotateEnabled) {
-        setTimeout(function() {
-          autorotateToggle.click();
-        }, 1000);
-      }
-    }
-    
-    // Plein écran
-    var fullscreenToggle = document.getElementById('fullscreenToggle');
-    if (fullscreenToggle && APP_DATA.settings.fullscreenButton) {
-      fullscreenToggle.addEventListener('click', function() {
-        if (screenfull.isEnabled) {
-          screenfull.toggle(panoElement);
-        }
-      });
-      
-      if (screenfull.isEnabled) {
-        screenfull.on('change', function() {
-          var icons = fullscreenToggle.querySelectorAll('.icon');
-          icons.forEach(function(icon) {
-            icon.style.display = 'none';
-          });
-          
-          if (screenfull.isFullscreen) {
-            fullscreenToggle.querySelector('.on').style.display = 'block';
-          } else {
-            fullscreenToggle.querySelector('.off').style.display = 'block';
-          }
-        });
-      } else {
-        fullscreenToggle.style.display = 'none';
-      }
-    } else if (fullscreenToggle) {
-      fullscreenToggle.style.display = 'none';
-    }
-    
-    // Liste des scènes
-    var sceneListToggle = document.getElementById('sceneListToggle');
-    if (sceneListToggle) {
-      sceneListToggle.addEventListener('click', function() {
-        var sceneList = document.getElementById('sceneList');
-        sceneList.classList.toggle('expanded');
-        
-        var icons = this.querySelectorAll('.icon');
-        icons.forEach(function(icon) {
-          icon.style.display = 'none';
-        });
-        
-        if (sceneList.classList.contains('expanded')) {
-          this.querySelector('.on').style.display = 'block';
-        } else {
-          this.querySelector('.off').style.display = 'block';
-        }
-      });
-    }
-    
-    // Boutons de contrôle de vue
-    if (APP_DATA.settings.viewControlButtons) {
-      var viewButtons = {
-        viewUp: { yaw: 0, pitch: -0.1 },
-        viewDown: { yaw: 0, pitch: 0.1 },
-        viewLeft: { yaw: -0.1, pitch: 0 },
-        viewRight: { yaw: 0.1, pitch: 0 },
-        viewIn: { fov: -0.1 },
-        viewOut: { fov: 0.1 }
-      };
-      
-      Object.keys(viewButtons).forEach(function(buttonId) {
-        var button = document.getElementById(buttonId);
-        if (button) {
-          button.addEventListener('click', function() {
-            var view = viewer.view();
-            var update = viewButtons[buttonId];
-            var newParams = {};
-            
-            if (update.yaw !== undefined) {
-              newParams.yaw = view.yaw() + update.yaw;
-            }
-            if (update.pitch !== undefined) {
-              newParams.pitch = view.pitch() + update.pitch;
-            }
-            if (update.fov !== undefined) {
-              newParams.fov = view.fov() + update.fov;
-            }
-            
-            view.setParameters(newParams);
-          });
-        }
-      });
-    } else {
-      // Cacher les boutons de contrôle de vue
-      var viewControls = document.querySelectorAll('.viewControlButton');
-      viewControls.forEach(function(button) {
-        button.style.display = 'none';
-      });
-    }
-  }
-  
-  // Initialiser les événements des scènes
-  function setupSceneEvents() {
-    var sceneLinks = document.querySelectorAll('.scene');
-    sceneLinks.forEach(function(link) {
-      link.addEventListener('click', function(e) {
+
+  // Initialiser les événements
+  function initEvents() {
+    // Liens des scènes
+    document.querySelectorAll('.scene').forEach(link => {
+      link.addEventListener('click', (e) => {
         e.preventDefault();
-        var sceneId = this.getAttribute('data-id');
-        switchScene(sceneId);
+        switchScene(link.getAttribute('data-id'));
       });
     });
+
+    // Rotation automatique
+    const autorotateBtn = document.getElementById('autorotateToggle');
+    if (autorotateBtn) {
+      let autorotating = false;
+      autorotateBtn.addEventListener('click', () => {
+        autorotating = !autorotating;
+        viewer.setIdleMovement(3000, autorotating);
+        autorotateBtn.querySelector('.on').style.display = autorotating ? 'block' : 'none';
+        autorotateBtn.querySelector('.off').style.display = autorotating ? 'none' : 'block';
+      });
+    }
+
+    // Plein écran
+    const fullscreenBtn = document.getElementById('fullscreenToggle');
+    if (fullscreenBtn && screenfull.isEnabled) {
+      fullscreenBtn.addEventListener('click', () => screenfull.toggle(panoElement));
+      screenfull.on('change', () => {
+        fullscreenBtn.querySelector('.on').style.display = screenfull.isFullscreen ? 'block' : 'none';
+        fullscreenBtn.querySelector('.off').style.display = screenfull.isFullscreen ? 'none' : 'block';
+      });
+    }
+
+    // Contrôles de vue
+    const viewControls = {
+      viewUp: { pitch: -0.1 },
+      viewDown: { pitch: 0.1 },
+      viewLeft: { yaw: -0.1 },
+      viewRight: { yaw: 0.1 },
+      viewIn: { fov: -0.1 },
+      viewOut: { fov: 0.1 }
+    };
+
+    Object.keys(viewControls).forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const view = viewer.view();
+          const update = viewControls[id];
+          const params = {};
+          
+          if (update.yaw !== undefined) params.yaw = view.yaw() + update.yaw;
+          if (update.pitch !== undefined) params.pitch = view.pitch() + update.pitch;
+          if (update.fov !== undefined) params.fov = view.fov() + update.fov;
+          
+          view.setParameters(params);
+        });
+      }
+    });
   }
-  
+
   // Démarrer
-  setupControls();
-  setupSceneEvents();
-  
-  // Charger la première scène
+  initEvents();
   if (APP_DATA.scenes.length > 0) {
     switchScene(APP_DATA.scenes[0].id);
   }
-  
-  // Exposer l'API
-  window.viewer = viewer;
-  window.switchScene = switchScene;
+
+  // Outil de débogage
+  window.debugScene = function(sceneId) {
+    const scene = scenes[sceneId];
+    if (!scene) return;
+    
+    console.log('=== DEBUG SCENE ===');
+    console.log('Scene:', sceneId);
+    console.log('Expected faces: b, d, f, l, r, u');
+    
+    // Tester chaque face
+    ['b', 'd', 'f', 'l', 'r', 'u'].forEach(face => {
+      const testUrl = scene.data.image.base
+        .replace('{z}', '1')
+        .replace('{f}', face)
+        .replace('{y}', '0')
+        .replace('{x}', '0');
+      
+      console.log(`Testing ${face}: ${testUrl}`);
+      
+      // Vérifier si le fichier existe
+      fetch(testUrl, { method: 'HEAD' })
+        .then(response => {
+          console.log(`  ${face}: ${response.status === 200 ? '✅ OK' : '❌ Missing'}`);
+        })
+        .catch(() => {
+          console.log(`  ${face}: ❌ Error`);
+        });
+    });
+  };
 });
