@@ -1,53 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marzipano Panorama</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Marzipano library -->
-  <script src="https://www.marzipano.net/demos/vendor/marzipano/marzipano.js"></script>
-  <!-- Bowser (browser detection) -->
-  <script src="https://cdn.jsdelivr.net/npm/bowser@2.11.0/es5.js"></script>
-  <!-- Screenfull (fullscreen) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/6.0.0/screenfull.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Visite Virtuelle</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Panorama container -->
-  <div id="pano"></div>
-
-  <!-- Title bar -->
-  <div id="titleBar">
-    <div class="sceneName"></div>
-  </div>
-
-  <!-- Toggle buttons -->
-  <div id="fullscreenToggle">
-    <div class="icon on"></div>
-    <div class="icon off"></div>
-  </div>
-  <div id="autorotateToggle">
-    <div class="icon on"></div>
-    <div class="icon off"></div>
-  </div>
-  <div id="sceneListToggle">
-    <div class="text">Scenes</div>
-    <div class="icon on"></div>
-    <div class="icon off"></div>
-  </div>
-
-  <!-- Scene list -->
-  <div id="sceneList">
-    <div class="scenes">
-      <!-- Les scènes seront générées dynamiquement -->
-    </div>
-  </div>
-
-  <!-- JS -->
-  <script src="index.js"></script>
+    <h1>Visite Virtuelle</h1>
+    <div id="viewer"></div>
+    <script src="data.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>
