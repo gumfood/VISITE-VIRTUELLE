@@ -25,7 +25,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/bureau-1/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/bureau-1/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -65,7 +65,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/bureau-2-balcon/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/bureau-2-balcon/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -111,7 +111,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/bureau-3/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/bureau-3/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -144,7 +144,7 @@ var APP_DATA = {
         "fov": 1.4688428655418002
       },
       "image": {
-        "base": "tiles/cuisine/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/cuisine/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -196,7 +196,7 @@ var APP_DATA = {
         "fov": 1.4688428655418002
       },
       "image": {
-        "base": "tiles/hall-1/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/hall-1/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -260,7 +260,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/hall-2/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/hall-2/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -318,7 +318,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/salle-d-attente/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/salle-d-attente/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -370,7 +370,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/salle-reunion/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/salle-reunion/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -416,7 +416,7 @@ var APP_DATA = {
         "fov": 1.5707963267948966
       },
       "image": {
-        "base": "tiles/toilette-pmr/{z}/{f}/0/{y}/{x}.jpg",
+        "base": "tiles/toilette-pmr/{z}/{f}/{y}/{x}.jpg",
         "format": "jpg",
         "size": 1024,
         "fallbackOnly": false
@@ -438,11 +438,11 @@ var APP_DATA = {
       "infoHotspots": []
     }
   ],
-  "name": "Project Title",
+  "name": "Visite Virtuelle",
   "settings": {
     "mouseViewMode": "drag",
     "autorotateEnabled": true,
-    "fullscreenButton": false,
+    "fullscreenButton": true,
     "viewControlButtons": true
   }
 };
