@@ -1,392 +1,343 @@
-/*
- * Copyright 2016 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-'use strict';
-
-(function() {
-  var Marzipano = window.Marzipano;
-  var bowser = window.bowser;
-  var screenfull = window.screenfull;
-  var data = window.APP_DATA;
-
-  // Grab elements from DOM.
-  var panoElement = document.querySelector('#pano');
-  var sceneNameElement = document.querySelector('#titleBar .sceneName');
-  var sceneListElement = document.querySelector('#sceneList');
-  var sceneElements = document.querySelectorAll('#sceneList .scene');
-  var sceneListToggleElement = document.querySelector('#sceneListToggle');
-  var autorotateToggleElement = document.querySelector('#autorotateToggle');
-  var fullscreenToggleElement = document.querySelector('#fullscreenToggle');
-
-  // Detect desktop or mobile mode.
-  if (window.matchMedia) {
-    var setMode = function() {
-      if (mql.matches) {
-        document.body.classList.remove('desktop');
-        document.body.classList.add('mobile');
-      } else {
-        document.body.classList.remove('mobile');
-        document.body.classList.add('desktop');
-      }
-    };
-    var mql = matchMedia("(max-width: 500px), (max-height: 500px)");
-    setMode();
-    mql.addListener(setMode);
-  } else {
-    document.body.classList.add('desktop');
+// index.js - Version adaptée pour votre structure
+document.addEventListener('DOMContentLoaded', function() {
+  // Vérifier que APP_DATA existe
+  if (!window.APP_DATA) {
+    console.error('APP_DATA non trouvé. Vérifiez que data.js est chargé.');
+    return;
   }
 
-  // Detect whether we are on a touch device.
-  document.body.classList.add('no-touch');
-  window.addEventListener('touchstart', function() {
-    document.body.classList.remove('no-touch');
-    document.body.classList.add('touch');
-  });
-
-  // Use tooltip fallback mode on IE < 11.
-  if (bowser.msie && parseFloat(bowser.version) < 11) {
-    document.body.classList.add('tooltip-fallback');
-  }
-
-  // Viewer options.
+  // Initialiser Marzipano
+  var panoElement = document.getElementById('pano');
   var viewerOpts = {
     controls: {
-      mouseViewMode: data.settings.mouseViewMode
+      mouseViewMode: APP_DATA.settings.mouseViewMode || 'drag'
     }
   };
-
-  // Initialize viewer.
+  
   var viewer = new Marzipano.Viewer(panoElement, viewerOpts);
-
-  // Create scenes.
-  var scenes = data.scenes.map(function(data) {
+  var scenes = {};
+  var sceneList = document.querySelector('.scenes');
+  
+  // Fonction pour créer une scène
+  function createScene(sceneData) {
     var urlPrefix = "tiles";
     var source = Marzipano.ImageUrlSource.fromString(
-      urlPrefix + "/" + data.id + "/{z}/{f}/{y}/{x}.jpg",
-      { cubeMapPreviewUrl: urlPrefix + "/" + data.id + "/preview.jpg" });
-    var geometry = new Marzipano.CubeGeometry(data.levels);
-
-    var limiter = Marzipano.RectilinearView.limit.traditional(data.faceSize, 100*Math.PI/180, 120*Math.PI/180);
-    var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
-
+      sceneData.image.base,
+      { cubeMapPreviewUrl: urlPrefix + "/" + sceneData.id + "/preview.jpg" }
+    );
+    
+    var geometry = new Marzipano.CubeGeometry(sceneData.levels);
+    var limiter = Marzipano.RectilinearView.limit.traditional(
+      sceneData.faceSize,
+      (100 * Math.PI) / 180,
+      (120 * Math.PI) / 180
+    );
+    
+    var view = new Marzipano.RectilinearView(
+      sceneData.initialViewParameters,
+      limiter
+    );
+    
     var scene = viewer.createScene({
       source: source,
       geometry: geometry,
       view: view,
       pinFirstLevel: true
     });
-
-    // Create link hotspots.
-    data.linkHotspots.forEach(function(hotspot) {
-      var element = createLinkHotspotElement(hotspot);
-      scene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
-    });
-
-    // Create info hotspots.
-    data.infoHotspots.forEach(function(hotspot) {
-      var element = createInfoHotspotElement(hotspot);
-      scene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
-    });
-
+    
     return {
-      data: data,
-      scene: scene,
-      view: view
+      data: sceneData,
+      scene: scene
     };
+  }
+  
+  // Créer toutes les scènes
+  APP_DATA.scenes.forEach(function(sceneData) {
+    scenes[sceneData.id] = createScene(sceneData);
   });
-
-  // Set up autorotate, if enabled.
-  var autorotate = Marzipano.autorotate({
-    yawSpeed: 0.03,
-    targetPitch: 0,
-    targetFov: Math.PI/2
-  });
-  if (data.settings.autorotateEnabled) {
-    autorotateToggleElement.classList.add('enabled');
-  }
-
-  // Set handler for autorotate toggle.
-  autorotateToggleElement.addEventListener('click', toggleAutorotate);
-
-  // Set up fullscreen mode, if supported.
-  if (screenfull.enabled && data.settings.fullscreenButton) {
-    document.body.classList.add('fullscreen-enabled');
-    fullscreenToggleElement.addEventListener('click', function() {
-      screenfull.toggle();
-    });
-    screenfull.on('change', function() {
-      if (screenfull.isFullscreen) {
-        fullscreenToggleElement.classList.add('enabled');
-      } else {
-        fullscreenToggleElement.classList.remove('enabled');
-      }
-    });
-  } else {
-    document.body.classList.add('fullscreen-disabled');
-  }
-
-  // Set handler for scene list toggle.
-  sceneListToggleElement.addEventListener('click', toggleSceneList);
-
-  // Start with the scene list open on desktop.
-  if (!document.body.classList.contains('mobile')) {
-    showSceneList();
-  }
-
-  // Set handler for scene switch.
-  scenes.forEach(function(scene) {
-    var el = document.querySelector('#sceneList .scene[data-id="' + scene.data.id + '"]');
-    el.addEventListener('click', function() {
-      switchScene(scene);
-      // On mobile, hide scene list after selecting a scene.
-      if (document.body.classList.contains('mobile')) {
-        hideSceneList();
-      }
-    });
-  });
-
-  // DOM elements for view controls.
-  var viewUpElement = document.querySelector('#viewUp');
-  var viewDownElement = document.querySelector('#viewDown');
-  var viewLeftElement = document.querySelector('#viewLeft');
-  var viewRightElement = document.querySelector('#viewRight');
-  var viewInElement = document.querySelector('#viewIn');
-  var viewOutElement = document.querySelector('#viewOut');
-
-  // Dynamic parameters for controls.
-  var velocity = 0.7;
-  var friction = 3;
-
-  // Associate view controls with elements.
-  var controls = viewer.controls();
-  controls.registerMethod('upElement',    new Marzipano.ElementPressControlMethod(viewUpElement,     'y', -velocity, friction), true);
-  controls.registerMethod('downElement',  new Marzipano.ElementPressControlMethod(viewDownElement,   'y',  velocity, friction), true);
-  controls.registerMethod('leftElement',  new Marzipano.ElementPressControlMethod(viewLeftElement,   'x', -velocity, friction), true);
-  controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(viewRightElement,  'x',  velocity, friction), true);
-  controls.registerMethod('inElement',    new Marzipano.ElementPressControlMethod(viewInElement,  'zoom', -velocity, friction), true);
-  controls.registerMethod('outElement',   new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom',  velocity, friction), true);
-
-  function sanitize(s) {
-    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
-  }
-
-  function switchScene(scene) {
-    stopAutorotate();
-    scene.view.setParameters(scene.data.initialViewParameters);
-    scene.scene.switchTo();
-    startAutorotate();
-    updateSceneName(scene);
-    updateSceneList(scene);
-  }
-
-  function updateSceneName(scene) {
-    sceneNameElement.innerHTML = sanitize(scene.data.name);
-  }
-
-  function updateSceneList(scene) {
-    for (var i = 0; i < sceneElements.length; i++) {
-      var el = sceneElements[i];
-      if (el.getAttribute('data-id') === scene.data.id) {
-        el.classList.add('current');
-      } else {
-        el.classList.remove('current');
-      }
-    }
-  }
-
-  function showSceneList() {
-    sceneListElement.classList.add('enabled');
-    sceneListToggleElement.classList.add('enabled');
-  }
-
-  function hideSceneList() {
-    sceneListElement.classList.remove('enabled');
-    sceneListToggleElement.classList.remove('enabled');
-  }
-
-  function toggleSceneList() {
-    sceneListElement.classList.toggle('enabled');
-    sceneListToggleElement.classList.toggle('enabled');
-  }
-
-  function startAutorotate() {
-    if (!autorotateToggleElement.classList.contains('enabled')) {
+  
+  // Gestionnaire de changement de scène
+  function switchScene(sceneId) {
+    var scene = scenes[sceneId];
+    if (!scene) {
+      console.error('Scène non trouvée:', sceneId);
       return;
     }
-    viewer.startMovement(autorotate);
-    viewer.setIdleMovement(3000, autorotate);
-  }
-
-  function stopAutorotate() {
-    viewer.stopMovement();
-    viewer.setIdleMovement(Infinity);
-  }
-
-  function toggleAutorotate() {
-    if (autorotateToggleElement.classList.contains('enabled')) {
-      autorotateToggleElement.classList.remove('enabled');
-      stopAutorotate();
-    } else {
-      autorotateToggleElement.classList.add('enabled');
-      startAutorotate();
+    
+    // Mettre à jour le titre
+    var sceneNameElement = document.querySelector('.sceneName');
+    if (sceneNameElement) {
+      sceneNameElement.textContent = scene.data.name;
     }
-  }
-
-  function createLinkHotspotElement(hotspot) {
-
-    // Create wrapper element to hold icon and tooltip.
-    var wrapper = document.createElement('div');
-    wrapper.classList.add('hotspot');
-    wrapper.classList.add('link-hotspot');
-
-    // Create image element.
-    var icon = document.createElement('img');
-    icon.src = 'img/link.png';
-    icon.classList.add('link-hotspot-icon');
-
-    // Set rotation transform.
-    var transformProperties = [ '-ms-transform', '-webkit-transform', 'transform' ];
-    for (var i = 0; i < transformProperties.length; i++) {
-      var property = transformProperties[i];
-      icon.style[property] = 'rotate(' + hotspot.rotation + 'rad)';
-    }
-
-    // Add click event handler.
-    wrapper.addEventListener('click', function() {
-      switchScene(findSceneById(hotspot.target));
+    
+    // Activer le lien dans la liste
+    var sceneLinks = document.querySelectorAll('.scene');
+    sceneLinks.forEach(function(link) {
+      link.classList.remove('active');
+      if (link.getAttribute('data-id') === sceneId) {
+        link.classList.add('active');
+      }
     });
-
-    // Prevent touch and scroll events from reaching the parent element.
-    // This prevents the view control logic from interfering with the hotspot.
-    stopTouchAndScrollEventPropagation(wrapper);
-
-    // Create tooltip element.
-    var tooltip = document.createElement('div');
-    tooltip.classList.add('hotspot-tooltip');
-    tooltip.classList.add('link-hotspot-tooltip');
-    tooltip.innerHTML = findSceneDataById(hotspot.target).name;
-
-    wrapper.appendChild(icon);
-    wrapper.appendChild(tooltip);
-
-    return wrapper;
+    
+    // Changer de scène
+    scene.scene.switchTo();
+    
+    // Mettre à jour les hotspots
+    updateHotspots(scene.data);
   }
-
-  function createInfoHotspotElement(hotspot) {
-
-    // Create wrapper element to hold icon and tooltip.
-    var wrapper = document.createElement('div');
-    wrapper.classList.add('hotspot');
-    wrapper.classList.add('info-hotspot');
-
-    // Create hotspot/tooltip header.
-    var header = document.createElement('div');
-    header.classList.add('info-hotspot-header');
-
-    // Create image element.
-    var iconWrapper = document.createElement('div');
-    iconWrapper.classList.add('info-hotspot-icon-wrapper');
-    var icon = document.createElement('img');
-    icon.src = 'img/info.png';
-    icon.classList.add('info-hotspot-icon');
-    iconWrapper.appendChild(icon);
-
-    // Create title element.
-    var titleWrapper = document.createElement('div');
-    titleWrapper.classList.add('info-hotspot-title-wrapper');
-    var title = document.createElement('div');
-    title.classList.add('info-hotspot-title');
-    title.innerHTML = hotspot.title;
-    titleWrapper.appendChild(title);
-
-    // Create close element.
-    var closeWrapper = document.createElement('div');
-    closeWrapper.classList.add('info-hotspot-close-wrapper');
-    var closeIcon = document.createElement('img');
-    closeIcon.src = 'img/close.png';
-    closeIcon.classList.add('info-hotspot-close-icon');
-    closeWrapper.appendChild(closeIcon);
-
-    // Construct header element.
-    header.appendChild(iconWrapper);
-    header.appendChild(titleWrapper);
-    header.appendChild(closeWrapper);
-
-    // Create text element.
-    var text = document.createElement('div');
-    text.classList.add('info-hotspot-text');
-    text.innerHTML = hotspot.text;
-
-    // Place header and text into wrapper element.
-    wrapper.appendChild(header);
-    wrapper.appendChild(text);
-
-    // Create a modal for the hotspot content to appear on mobile mode.
-    var modal = document.createElement('div');
-    modal.innerHTML = wrapper.innerHTML;
-    modal.classList.add('info-hotspot-modal');
-    document.body.appendChild(modal);
-
-    var toggle = function() {
-      wrapper.classList.toggle('visible');
-      modal.classList.toggle('visible');
-    };
-
-    // Show content when hotspot is clicked.
-    wrapper.querySelector('.info-hotspot-header').addEventListener('click', toggle);
-
-    // Hide content when close icon is clicked.
-    modal.querySelector('.info-hotspot-close-wrapper').addEventListener('click', toggle);
-
-    // Prevent touch and scroll events from reaching the parent element.
-    // This prevents the view control logic from interfering with the hotspot.
-    stopTouchAndScrollEventPropagation(wrapper);
-
-    return wrapper;
+  
+  // Mettre à jour les hotspots
+  function updateHotspots(sceneData) {
+    // Supprimer les anciens hotspots
+    var hotspotContainer = document.getElementById('hotspotContainer');
+    if (hotspotContainer) {
+      hotspotContainer.remove();
+    }
+    
+    hotspotContainer = document.createElement('div');
+    hotspotContainer.id = 'hotspotContainer';
+    hotspotContainer.style.position = 'absolute';
+    hotspotContainer.style.width = '100%';
+    hotspotContainer.style.height = '100%';
+    hotspotContainer.style.pointerEvents = 'none';
+    panoElement.appendChild(hotspotContainer);
+    
+    // Ajouter les link hotspots
+    sceneData.linkHotspots.forEach(function(hotspot) {
+      var element = document.createElement('div');
+      element.className = 'hotspot link-hotspot';
+      element.style.position = 'absolute';
+      element.style.width = '40px';
+      element.style.height = '40px';
+      element.style.background = 'rgba(255, 255, 255, 0.7)';
+      element.style.borderRadius = '50%';
+      element.style.cursor = 'pointer';
+      element.style.pointerEvents = 'auto';
+      element.style.display = 'flex';
+      element.style.alignItems = 'center';
+      element.style.justifyContent = 'center';
+      element.style.fontSize = '20px';
+      element.style.color = '#333';
+      element.textContent = '→';
+      element.title = 'Aller vers ' + (scenes[hotspot.target] ? scenes[hotspot.target].data.name : hotspot.target);
+      
+      element.addEventListener('click', function() {
+        switchScene(hotspot.target);
+      });
+      
+      // Positionner le hotspot
+      var coordinates = viewer.view().coordinatesFromYawPitch(
+        hotspot.yaw,
+        hotspot.pitch
+      );
+      
+      element.style.left = (coordinates.x * 100) + '%';
+      element.style.top = (coordinates.y * 100) + '%';
+      element.style.transform = 'translate(-50%, -50%)';
+      
+      hotspotContainer.appendChild(element);
+    });
+    
+    // Ajouter les info hotspots
+    sceneData.infoHotspots.forEach(function(hotspot) {
+      var element = document.createElement('div');
+      element.className = 'hotspot info-hotspot';
+      element.style.position = 'absolute';
+      element.style.width = '30px';
+      element.style.height = '30px';
+      element.style.background = 'rgba(0, 150, 255, 0.7)';
+      element.style.borderRadius = '50%';
+      element.style.cursor = 'pointer';
+      element.style.pointerEvents = 'auto';
+      element.style.display = 'flex';
+      element.style.alignItems = 'center';
+      element.style.justifyContent = 'center';
+      element.style.fontSize = '16px';
+      element.style.color = 'white';
+      element.textContent = 'i';
+      element.title = hotspot.title || 'Information';
+      
+      // Info tooltip
+      var tooltip = document.createElement('div');
+      tooltip.className = 'hotspot-tooltip';
+      tooltip.style.display = 'none';
+      tooltip.style.position = 'absolute';
+      tooltip.style.background = 'rgba(0,0,0,0.8)';
+      tooltip.style.color = 'white';
+      tooltip.style.padding = '10px';
+      tooltip.style.borderRadius = '5px';
+      tooltip.style.maxWidth = '200px';
+      tooltip.style.zIndex = '1000';
+      tooltip.innerHTML = '<strong>' + (hotspot.title || 'Information') + '</strong><br>' + (hotspot.text || '');
+      
+      element.appendChild(tooltip);
+      
+      element.addEventListener('mouseenter', function() {
+        tooltip.style.display = 'block';
+      });
+      
+      element.addEventListener('mouseleave', function() {
+        tooltip.style.display = 'none';
+      });
+      
+      // Positionner le hotspot
+      var coordinates = viewer.view().coordinatesFromYawPitch(
+        hotspot.yaw,
+        hotspot.pitch
+      );
+      
+      element.style.left = (coordinates.x * 100) + '%';
+      element.style.top = (coordinates.y * 100) + '%';
+      element.style.transform = 'translate(-50%, -50%)';
+      
+      hotspotContainer.appendChild(element);
+    });
   }
-
-  // Prevent touch and scroll events from reaching the parent element.
-  function stopTouchAndScrollEventPropagation(element, eventList) {
-    var eventList = [ 'touchstart', 'touchmove', 'touchend', 'touchcancel',
-                      'wheel', 'mousewheel' ];
-    for (var i = 0; i < eventList.length; i++) {
-      element.addEventListener(eventList[i], function(event) {
-        event.stopPropagation();
+  
+  // Configuration des boutons de contrôle
+  function setupControls() {
+    // Rotation automatique
+    var autorotateToggle = document.getElementById('autorotateToggle');
+    if (autorotateToggle && APP_DATA.settings.autorotateEnabled) {
+      var isAutorotateEnabled = false;
+      
+      autorotateToggle.addEventListener('click', function() {
+        isAutorotateEnabled = !isAutorotateEnabled;
+        viewer.setIdleMovement(3000, isAutorotateEnabled);
+        
+        var icons = this.querySelectorAll('.icon');
+        icons.forEach(function(icon) {
+          icon.style.display = 'none';
+        });
+        
+        if (isAutorotateEnabled) {
+          this.querySelector('.on').style.display = 'block';
+        } else {
+          this.querySelector('.off').style.display = 'block';
+        }
+      });
+      
+      // Démarrer automatiquement si configuré
+      if (APP_DATA.settings.autorotateEnabled) {
+        setTimeout(function() {
+          autorotateToggle.click();
+        }, 1000);
+      }
+    }
+    
+    // Plein écran
+    var fullscreenToggle = document.getElementById('fullscreenToggle');
+    if (fullscreenToggle && APP_DATA.settings.fullscreenButton) {
+      fullscreenToggle.addEventListener('click', function() {
+        if (screenfull.isEnabled) {
+          screenfull.toggle(panoElement);
+        }
+      });
+      
+      if (screenfull.isEnabled) {
+        screenfull.on('change', function() {
+          var icons = fullscreenToggle.querySelectorAll('.icon');
+          icons.forEach(function(icon) {
+            icon.style.display = 'none';
+          });
+          
+          if (screenfull.isFullscreen) {
+            fullscreenToggle.querySelector('.on').style.display = 'block';
+          } else {
+            fullscreenToggle.querySelector('.off').style.display = 'block';
+          }
+        });
+      } else {
+        fullscreenToggle.style.display = 'none';
+      }
+    } else if (fullscreenToggle) {
+      fullscreenToggle.style.display = 'none';
+    }
+    
+    // Liste des scènes
+    var sceneListToggle = document.getElementById('sceneListToggle');
+    if (sceneListToggle) {
+      sceneListToggle.addEventListener('click', function() {
+        var sceneList = document.getElementById('sceneList');
+        sceneList.classList.toggle('expanded');
+        
+        var icons = this.querySelectorAll('.icon');
+        icons.forEach(function(icon) {
+          icon.style.display = 'none';
+        });
+        
+        if (sceneList.classList.contains('expanded')) {
+          this.querySelector('.on').style.display = 'block';
+        } else {
+          this.querySelector('.off').style.display = 'block';
+        }
+      });
+    }
+    
+    // Boutons de contrôle de vue
+    if (APP_DATA.settings.viewControlButtons) {
+      var viewButtons = {
+        viewUp: { yaw: 0, pitch: -0.1 },
+        viewDown: { yaw: 0, pitch: 0.1 },
+        viewLeft: { yaw: -0.1, pitch: 0 },
+        viewRight: { yaw: 0.1, pitch: 0 },
+        viewIn: { fov: -0.1 },
+        viewOut: { fov: 0.1 }
+      };
+      
+      Object.keys(viewButtons).forEach(function(buttonId) {
+        var button = document.getElementById(buttonId);
+        if (button) {
+          button.addEventListener('click', function() {
+            var view = viewer.view();
+            var update = viewButtons[buttonId];
+            var newParams = {};
+            
+            if (update.yaw !== undefined) {
+              newParams.yaw = view.yaw() + update.yaw;
+            }
+            if (update.pitch !== undefined) {
+              newParams.pitch = view.pitch() + update.pitch;
+            }
+            if (update.fov !== undefined) {
+              newParams.fov = view.fov() + update.fov;
+            }
+            
+            view.setParameters(newParams);
+          });
+        }
+      });
+    } else {
+      // Cacher les boutons de contrôle de vue
+      var viewControls = document.querySelectorAll('.viewControlButton');
+      viewControls.forEach(function(button) {
+        button.style.display = 'none';
       });
     }
   }
-
-  function findSceneById(id) {
-    for (var i = 0; i < scenes.length; i++) {
-      if (scenes[i].data.id === id) {
-        return scenes[i];
-      }
-    }
-    return null;
+  
+  // Initialiser les événements des scènes
+  function setupSceneEvents() {
+    var sceneLinks = document.querySelectorAll('.scene');
+    sceneLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var sceneId = this.getAttribute('data-id');
+        switchScene(sceneId);
+      });
+    });
   }
-
-  function findSceneDataById(id) {
-    for (var i = 0; i < data.scenes.length; i++) {
-      if (data.scenes[i].id === id) {
-        return data.scenes[i];
-      }
-    }
-    return null;
+  
+  // Démarrer
+  setupControls();
+  setupSceneEvents();
+  
+  // Charger la première scène
+  if (APP_DATA.scenes.length > 0) {
+    switchScene(APP_DATA.scenes[0].id);
   }
-
-  // Display the initial scene.
-  switchScene(scenes[0]);
-
-})();
+  
+  // Exposer l'API
+  window.viewer = viewer;
+  window.switchScene = switchScene;
+});
