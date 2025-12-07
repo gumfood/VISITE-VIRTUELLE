@@ -1,103 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-<title>Project Title</title>
-<meta charset="utf-8">
-<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
-<style> @-ms-viewport { width: device-width; } </style>
-<link rel="stylesheet" href="vendor/reset.min.css">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marzipano Panorama</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Marzipano library -->
+  <script src="https://www.marzipano.net/demos/vendor/marzipano/marzipano.js"></script>
+  <!-- Bowser (browser detection) -->
+  <script src="https://cdn.jsdelivr.net/npm/bowser@2.11.0/es5.js"></script>
+  <!-- Screenfull (fullscreen) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/6.0.0/screenfull.min.js"></script>
 </head>
-<body class="multiple-scenes view-control-buttons">
+<body>
 
-<div id="pano"></div>
+  <!-- Panorama container -->
+  <div id="pano"></div>
 
-<div id="sceneList">
-  <ul class="scenes">
-    
-      <a href="javascript:void(0)" class="scene" data-id="0-bureau-1">
-        <li class="text">BUREAU 1</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="1-bureau-2-balcon">
-        <li class="text">BUREAU 2 BALCON</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="2-bureau-3">
-        <li class="text">BUREAU 3</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="3-cuisine">
-        <li class="text">CUISINE</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="4-hall-1">
-        <li class="text">HALL 1</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="5-hall-2">
-        <li class="text">HALL 2</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="6-salle-d-attente">
-        <li class="text">SALLE D ATTENTE</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="7-salle-reunion">
-        <li class="text">SALLE REUNION</li>
-      </a>
-    
-      <a href="javascript:void(0)" class="scene" data-id="8-toilette-pmr">
-        <li class="text">TOILETTE PMR</li>
-      </a>
-    
-  </ul>
-</div>
+  <!-- Title bar -->
+  <div id="titleBar">
+    <div class="sceneName"></div>
+  </div>
 
-<div id="titleBar">
-  <h1 class="sceneName"></h1>
-</div>
+  <!-- Toggle buttons -->
+  <div id="fullscreenToggle">
+    <div class="icon on"></div>
+    <div class="icon off"></div>
+  </div>
+  <div id="autorotateToggle">
+    <div class="icon on"></div>
+    <div class="icon off"></div>
+  </div>
+  <div id="sceneListToggle">
+    <div class="text">Scenes</div>
+    <div class="icon on"></div>
+    <div class="icon off"></div>
+  </div>
 
-<a href="javascript:void(0)" id="autorotateToggle">
-  <img class="icon off" src="img/play.png">
-  <img class="icon on" src="img/pause.png">
-</a>
+  <!-- Scene list -->
+  <div id="sceneList">
+    <div class="scenes">
+      <!-- Les scènes seront générées dynamiquement -->
+    </div>
+  </div>
 
-<a href="javascript:void(0)" id="fullscreenToggle">
-  <img class="icon off" src="img/fullscreen.png">
-  <img class="icon on" src="img/windowed.png">
-</a>
-
-<a href="javascript:void(0)" id="sceneListToggle">
-  <img class="icon off" src="img/expand.png">
-  <img class="icon on" src="img/collapse.png">
-</a>
-
-<a href="javascript:void(0)" id="viewUp" class="viewControlButton viewControlButton-1">
-  <img class="icon" src="img/up.png">
-</a>
-<a href="javascript:void(0)" id="viewDown" class="viewControlButton viewControlButton-2">
-  <img class="icon" src="img/down.png">
-</a>
-<a href="javascript:void(0)" id="viewLeft" class="viewControlButton viewControlButton-3">
-  <img class="icon" src="img/left.png">
-</a>
-<a href="javascript:void(0)" id="viewRight" class="viewControlButton viewControlButton-4">
-  <img class="icon" src="img/right.png">
-</a>
-<a href="javascript:void(0)" id="viewIn" class="viewControlButton viewControlButton-5">
-  <img class="icon" src="img/plus.png">
-</a>
-<a href="javascript:void(0)" id="viewOut" class="viewControlButton viewControlButton-6">
-  <img class="icon" src="img/minus.png">
-</a>
-
-<script src="vendor/screenfull.min.js" ></script>
-<script src="vendor/bowser.min.js" ></script>
-<script src="vendor/marzipano.js" ></script>
-
-<script src="data.js"></script>
-<script src="index.js"></script>
-
+  <!-- JS -->
+  <script src="index.js"></script>
 </body>
 </html>
