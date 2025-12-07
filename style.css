@@ -1,337 +1,467 @@
-/* style.css - Version complète corrigée */
+/* style.css - VERSION COMPLÈTE CORRIGÉE */
+
+/* Reset et base */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    overflow: hidden;
-    height: 100vh;
-}
-
-#pano {
-    position: absolute;
-    top: 0;
-    left: 0;
+html, body {
     width: 100%;
     height: 100%;
-    z-index: 1;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
 }
 
-/* ===== MENU DES SCÈNES ===== */
+/* Conteneur principal */
+body.multiple-scenes {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Panorama */
+#pano {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1 !important;
+}
+
+/* ===== MENU DES SCÈNES (FIXÉ) ===== */
 #sceneList {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 8px;
-    padding: 15px;
-    max-width: 300px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
+    position: fixed !important;
+    top: 20px !important;
+    left: 20px !important;
+    z-index: 10000 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    width: 280px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(10px) !important;
+    transform: translateX(0) !important; /* TOUJOURS VISIBLE */
+    transition: all 0.3s ease !important;
 }
 
-#sceneList:not(.expanded) {
-    transform: translateX(-90%);
+/* Masquer uniquement si on clique sur le bouton */
+#sceneList.collapsed {
+    transform: translateX(-260px) !important; /* Cache juste le contenu */
+    opacity: 0.7 !important;
 }
 
-#sceneList.expanded {
-    transform: translateX(0);
+#sceneList.collapsed:hover {
+    transform: translateX(-240px) !important;
+    opacity: 1 !important;
 }
 
+/* Liste des scènes */
 #sceneList ul.scenes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
 }
 
 #sceneList ul.scenes a.scene {
-    display: block;
-    text-decoration: none;
-    color: #333;
-    padding: 12px 15px;
-    margin: 5px 0;
-    border-radius: 6px;
-    transition: all 0.2s;
-    border-left: 4px solid transparent;
+    display: block !important;
+    text-decoration: none !important;
+    color: #333 !important;
+    padding: 14px 18px !important;
+    margin: 8px 0 !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    border-left: 5px solid transparent !important;
+    background: rgba(0, 0, 0, 0.02) !important;
+    width: 100% !important;
 }
 
 #sceneList ul.scenes a.scene:hover {
-    background: rgba(0, 120, 215, 0.1);
-    border-left-color: #0078d7;
+    background: rgba(0, 120, 215, 0.15) !important;
+    border-left-color: #0078d7 !important;
+    transform: translateX(5px) !important;
 }
 
 #sceneList ul.scenes a.scene.active {
-    background: rgba(0, 120, 215, 0.15);
-    border-left-color: #0078d7;
-    font-weight: bold;
-    color: #0078d7;
-}
-
-#sceneList ul.scenes a.scene.active li.text {
-    color: #0078d7;
+    background: rgba(0, 120, 215, 0.2) !important;
+    border-left-color: #0078d7 !important;
+    color: #0078d7 !important;
+    font-weight: bold !important;
+    box-shadow: 0 4px 12px rgba(0, 120, 215, 0.2) !important;
 }
 
 #sceneList ul.scenes li.text {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 500;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
 }
 
-/* Bouton pour étendre/réduire le menu */
+/* Bouton de toggle du menu */
 #sceneListToggle {
-    position: absolute;
-    top: 15px;
-    right: -40px;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 0 8px 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
+    position: fixed !important;
+    top: 30px !important;
+    left: 300px !important; /* À côté du menu */
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 10001 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease !important;
+}
+
+#sceneListToggle:hover {
+    background: white !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35) !important;
 }
 
 #sceneListToggle .icon {
-    width: 24px;
-    height: 24px;
+    width: 24px !important;
+    height: 24px !important;
+    transition: opacity 0.3s ease !important;
 }
 
 #sceneListToggle .icon.on {
-    display: none;
+    display: none !important;
 }
 
 #sceneListToggle .icon.off {
-    display: block;
+    display: block !important;
 }
 
-#sceneList.expanded ~ #sceneListToggle .icon.on {
-    display: block;
+/* Quand le menu est réduit */
+#sceneList.collapsed ~ #sceneListToggle {
+    left: 40px !important; /* Retour à gauche */
 }
 
-#sceneList.expanded ~ #sceneListToggle .icon.off {
-    display: none;
+#sceneList.collapsed ~ #sceneListToggle .icon.on {
+    display: block !important;
+}
+
+#sceneList.collapsed ~ #sceneListToggle .icon.off {
+    display: none !important;
 }
 
 /* ===== BARRE DE TITRE ===== */
 #titleBar {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: bold;
-    min-width: 200px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    position: fixed !important;
+    top: 30px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    color: white !important;
+    padding: 15px 35px !important;
+    border-radius: 50px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    min-width: 300px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 /* ===== BOUTONS DE CONTRÔLE ===== */
 #autorotateToggle, #fullscreenToggle {
-    position: absolute;
-    bottom: 100px;
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 999;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.2s;
-}
-
-#autorotateToggle {
-    right: 20px;
+    position: fixed !important;
+    bottom: 120px !important;
+    right: 30px !important;
+    width: 60px !important;
+    height: 60px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 9999 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease !important;
 }
 
 #fullscreenToggle {
-    right: 20px;
-    bottom: 170px;
+    bottom: 200px !important;
 }
 
 #autorotateToggle:hover, #fullscreenToggle:hover {
-    background: white;
-    transform: scale(1.1);
+    background: white !important;
+    transform: scale(1.15) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35) !important;
 }
 
 #autorotateToggle .icon, #fullscreenToggle .icon {
-    width: 24px;
-    height: 24px;
+    width: 28px !important;
+    height: 28px !important;
 }
 
 #autorotateToggle .icon.on, #fullscreenToggle .icon.on {
-    display: none;
+    display: none !important;
 }
 
 #autorotateToggle.active .icon.on, 
 #fullscreenToggle.active .icon.on {
-    display: block;
+    display: block !important;
 }
 
 #autorotateToggle.active .icon.off, 
 #fullscreenToggle.active .icon.off {
-    display: none;
+    display: none !important;
 }
 
 /* ===== BOUTONS DE VUE ===== */
 .viewControlButton {
-    position: absolute;
-    width: 45px;
-    height: 45px;
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 999;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.2s;
+    position: fixed !important;
+    width: 55px !important;
+    height: 55px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 9999 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease !important;
 }
 
 .viewControlButton:hover {
-    background: white;
-    transform: scale(1.1);
+    background: white !important;
+    transform: scale(1.15) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
 .viewControlButton .icon {
-    width: 20px;
-    height: 20px;
+    width: 22px !important;
+    height: 22px !important;
 }
 
-/* Positionnement des boutons de vue */
+/* Positionnement */
 .viewControlButton-1 { /* UP */
-    bottom: 180px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 200px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
 }
 
 .viewControlButton-2 { /* DOWN */
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 100px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
 }
 
 .viewControlButton-3 { /* LEFT */
-    bottom: 135px;
-    left: calc(50% - 70px);
-    transform: translateX(-50%);
+    bottom: 150px !important;
+    left: calc(50% - 80px) !important;
+    transform: translateX(-50%) !important;
 }
 
 .viewControlButton-4 { /* RIGHT */
-    bottom: 135px;
-    left: calc(50% + 70px);
-    transform: translateX(-50%);
+    bottom: 150px !important;
+    left: calc(50% + 80px) !important;
+    transform: translateX(-50%) !important;
 }
 
 .viewControlButton-5 { /* ZOOM IN */
-    bottom: 30px;
-    left: calc(50% - 60px);
+    bottom: 40px !important;
+    left: calc(50% - 70px) !important;
+    transform: translateX(-50%) !important;
 }
 
 .viewControlButton-6 { /* ZOOM OUT */
-    bottom: 30px;
-    left: calc(50% + 60px);
+    bottom: 40px !important;
+    left: calc(50% + 70px) !important;
+    transform: translateX(-50%) !important;
 }
 
-/* ===== HOTSPOTS ===== */
+/* ===== HOTSPOTS (CORRIGÉS) ===== */
+#hotspot-container {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
+    z-index: 500 !important;
+}
+
 .hotspot {
-    transition: all 0.3s ease;
-    cursor: pointer;
+    position: absolute !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
+/* Hotspots de lien */
 .link-hotspot {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: #333;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    border: 2px solid white;
+    width: 50px !important;
+    height: 50px !important;
+    background: linear-gradient(135deg, #0078d7, #00b4ff) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    color: white !important;
+    font-weight: bold !important;
+    box-shadow: 0 6px 20px rgba(0, 120, 215, 0.4) !important;
+    border: 3px solid white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    animation: pulse 2s infinite !important;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 120, 215, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(0, 120, 215, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 120, 215, 0); }
 }
 
 .link-hotspot:hover {
-    background: rgba(0, 200, 100, 0.9);
-    color: white;
-    transform: scale(1.2);
+    background: linear-gradient(135deg, #005a9e, #0090ff) !important;
+    transform: scale(1.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 120, 215, 0.6) !important;
+    animation: none !important;
 }
 
+/* Hotspots d'information */
 .info-hotspot {
-    width: 30px;
-    height: 30px;
-    background: rgba(0, 150, 255, 0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    border: 2px solid white;
+    width: 40px !important;
+    height: 40px !important;
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    color: white !important;
+    font-weight: bold !important;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+    border: 3px solid white !important;
 }
 
 .info-hotspot:hover {
-    background: rgba(0, 100, 255, 0.9);
-    transform: scale(1.2);
+    background: linear-gradient(135deg, #218838, #1e9e8a) !important;
+    transform: scale(1.3) !important;
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.6) !important;
+}
+
+/* Tooltip pour les hotspots */
+.hotspot::after {
+    content: attr(title) !important;
+    position: absolute !important;
+    bottom: 100% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: white !important;
+    padding: 10px 15px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s, transform 0.3s !important;
+    transform: translateX(-50%) translateY(-10px) !important;
+    z-index: 1001 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.hotspot:hover::after {
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(-5px) !important;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     #sceneList {
-        max-width: 250px;
-        top: 10px;
-        left: 10px;
+        width: 250px !important;
+        padding: 15px !important;
+        top: 10px !important;
+        left: 10px !important;
+    }
+    
+    #sceneListToggle {
+        left: 270px !important;
+        width: 45px !important;
+        height: 45px !important;
+    }
+    
+    #sceneList.collapsed ~ #sceneListToggle {
+        left: 20px !important;
     }
     
     #titleBar {
-        top: 10px;
-        font-size: 14px;
-        padding: 8px 20px;
+        top: 15px !important;
+        padding: 12px 25px !important;
+        font-size: 16px !important;
+        min-width: 250px !important;
     }
     
     .viewControlButton {
-        width: 40px;
-        height: 40px;
+        width: 50px !important;
+        height: 50px !important;
     }
     
+    .viewControlButton-1 { bottom: 180px !important; }
+    .viewControlButton-2 { bottom: 90px !important; }
+    .viewControlButton-3 { left: calc(50% - 70px) !important; }
+    .viewControlButton-4 { left: calc(50% + 70px) !important; }
+    .viewControlButton-5 { left: calc(50% - 60px) !important; }
+    .viewControlButton-6 { left: calc(50% + 60px) !important; }
+    
     #autorotateToggle, #fullscreenToggle {
-        width: 45px;
-        height: 45px;
-        bottom: 80px;
+        width: 55px !important;
+        height: 55px !important;
+        bottom: 100px !important;
+        right: 20px !important;
     }
     
     #fullscreenToggle {
-        bottom: 140px;
+        bottom: 170px !important;
+    }
+    
+    .link-hotspot {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 20px !important;
+    }
+    
+    .info-hotspot {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 16px !important;
     }
 }
 
-/* ===== ANIMATIONS ===== */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* Animation d'entrée */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #sceneList, #titleBar, #autorotateToggle, #fullscreenToggle, .viewControlButton {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeInUp 0.5s ease-out !important;
 }
