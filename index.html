@@ -132,6 +132,38 @@ setTimeout(() => {
         console.log('🗑️ Hotspot de test supprimé');
     }, 5000);
 }, 3000);
+</script><script>
+// DIAGNOSTIC IMMÉDIAT
+window.addEventListener('load', function() {
+    console.log('🔍 DIAGNOSTIC DES IMAGES');
+    
+    // Tester une image directement
+    const testImages = [
+        'tiles/bureau-1/1/1/0/0.jpg',
+        'tiles/bureau-1/1/f/0/0.jpg',
+        'tiles/bureau-1/1/b/0/0.jpg',
+        'tiles/bureau-2-balcon/1/f/0/0.jpg',
+        'tiles/cuisine/1/f/0/0.jpg'
+    ];
+    
+    testImages.forEach(url => {
+        const img = new Image();
+        img.onload = () => console.log(`✅ ${url} - CHARGÉ (${img.width}x${img.height})`);
+        img.onerror = () => console.log(`❌ ${url} - ERREUR`);
+        img.src = url;
+    });
+    
+    // Vérifier la structure des dossiers
+    fetch('tiles/')
+        .then(r => r.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const links = [...doc.querySelectorAll('a')].map(a => a.href);
+            console.log('📁 Dossiers dans tiles/:', links.filter(l => l.includes('/')));
+        })
+        .catch(e => console.log('❌ Impossible de lire tiles/'));
+});
 </script>
 </body>
 </html>
